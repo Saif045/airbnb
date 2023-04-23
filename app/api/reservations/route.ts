@@ -31,6 +31,7 @@ export async function POST(
     data: {
       reservations: {
         create: {
+          //@ts-nocheck
           userId: currentUser.id,
           startDate,
           endDate,
