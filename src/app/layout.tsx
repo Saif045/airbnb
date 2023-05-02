@@ -7,6 +7,7 @@ import RentModal from "@/src/components/modals/RentModal";
 import ToasterProvider from "@/src/providers/ToasterProvider";
 import ClientOnly from "@/src/components/ClientOnly";
 import getCurrentUser from "@/src/actions/getCurrentUser";
+import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 
 export const metadata = {
@@ -37,6 +38,8 @@ export default async function RootLayout({
           <Navbar currentUser={currentUser} />
         </ClientOnly>
         <div className="pb-20 pt-28">{children}</div>
+
+        <Analytics />
       </body>
     </html>
   );
