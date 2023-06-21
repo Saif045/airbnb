@@ -2,13 +2,15 @@ import Container from "@/src/components/Container";
 import ListingCard from "@/src/components/listings/ListingCard";
 import EmptyState from "@/src/components/EmptyState";
 
-import getListings from "@/src/actions/getListings";
+import getListings, { IListingsParams } from "@/src/actions/getListings";
 import getCurrentUser from "@/src/actions/getCurrentUser";
 import ClientOnly from "@/src/components/ClientOnly";
 
-
-
-const Home = async ({ searchParams }: any) => {
+interface HomeProps {
+  searchParams: IListingsParams;
+}
+export const dynamic = "force-dynamic";
+const Home = async ({ searchParams }: HomeProps) => {
   const listings = await getListings(searchParams);
   const currentUser = await getCurrentUser();
 
