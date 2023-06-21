@@ -1,13 +1,15 @@
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import bcrypt from "bcrypt";
 import NextAuth, { AuthOptions } from "next-auth";
-import prisma from "@/src/libs/prismadb";
+import CredentialsProvider from "next-auth/providers/credentials";
 import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
-import CredentialsProvider from "next-auth/providers/credentials";
-import bcrypt from "bcrypt";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
 
-export const authOptions: AuthOptions = {
+import prisma from "@/src/libs/prismadb";
+
+export const authOptions: AuthOptions & { site: string } = {
   adapter: PrismaAdapter(prisma),
+  site: "https://airbnb45.vercel.app/",
   providers: [
     GithubProvider({
       clientId: process.env.GITHUB_ID as string,
@@ -24,36 +26,40 @@ export const authOptions: AuthOptions = {
         password: { label: "password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials.password) {
-          throw new Error("Invalid Credentials");
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error("Invalid credentials");
         }
+
         const user = await prisma.user.findUnique({
           where: {
             email: credentials.email,
           },
         });
-        if (!user || !user.hashedPassword) {
-          throw new Error("Invalid Credentials");
+
+        if (!user || !user?.hashedPassword) {
+          throw new Error("Invalid credentials");
         }
 
         const isCorrectPassword = await bcrypt.compare(
           credentials.password,
           user.hashedPassword
         );
+
         if (!isCorrectPassword) {
-          throw new Error("Invalid Credentials");
+          throw new Error("Invalid credentials");
         }
+
         return user;
       },
     }),
   ],
-  pages: { signIn: "/" },
-  debug: process.env.NODE_ENV == "development",
+  debug: process.env.NODE_ENV === "development",
   session: {
     strategy: "jwt",
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
+
 const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };
