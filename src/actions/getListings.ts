@@ -1,25 +1,12 @@
 import prisma from "../libs/prismadb";
 
-export interface IListingsParams {
-  userId?: string;
-  guestCount?: number;
-  roomCount?: number;
-  bathroomCount?: number;
-  startDate?: string;
-  endDate?: string;
-  locationValue?: string;
-  category?: string;
-}
-
-export default async function getListings(
-  params: IListingsParams
-) {
+export default async function getListings(params: any) {
   try {
     const {
       userId,
-      roomCount, 
-      guestCount, 
-      bathroomCount, 
+      roomCount,
+      guestCount,
+      bathroomCount,
       locationValue,
       startDate,
       endDate,
@@ -38,20 +25,20 @@ export default async function getListings(
 
     if (roomCount) {
       query.roomCount = {
-        gte: +roomCount
-      }
+        gte: +roomCount,
+      };
     }
 
     if (guestCount) {
       query.guestCount = {
-        gte: +guestCount
-      }
+        gte: +guestCount,
+      };
     }
 
     if (bathroomCount) {
       query.bathroomCount = {
-        gte: +bathroomCount
-      }
+        gte: +bathroomCount,
+      };
     }
 
     if (locationValue) {
@@ -65,26 +52,26 @@ export default async function getListings(
             OR: [
               {
                 endDate: { gte: startDate },
-                startDate: { lte: startDate }
+                startDate: { lte: startDate },
               },
               {
                 startDate: { lte: endDate },
-                endDate: { gte: endDate }
-              }
-            ]
-          }
-        }
-      }
+                endDate: { gte: endDate },
+              },
+            ],
+          },
+        },
+      };
     }
 
     const listings = await prisma.listing.findMany({
       where: query,
       orderBy: {
-        createdAt: 'desc'
-      }
+        createdAt: "desc",
+      },
     });
 
-    const safeListings = listings.map((listing) => ({
+    const safeListings = listings.map((listing: any) => ({
       ...listing,
       createdAt: listing.createdAt.toISOString(),
     }));
